@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <form class="pt-3">
+    <form class="pt-3" @submit.prevent="onSubmit">
 
       <div class="form-group">
         <label for="email">Email</label>
@@ -14,6 +14,7 @@
         >
         <div class="invalid-feedback" v-if="!$v.email.required">Field is rquired</div>
         <div class="invalid-feedback" v-if="!$v.email.email">error</div>
+        <div class="invalid-feedback" v-if="!$v.email.uniqEmail">error uniq</div>
       </div>
 
       <div class="form-group">
@@ -42,6 +43,12 @@
         <div class="invalid-feedback" v-if="!$v.confirmPass.sameAs">different password</div>
       </div>
 
+      <button
+          class="btn btn-success"
+          type="submit"
+          :disabled="$v.$invalid"
+      >Submit</button>
+
     </form>
   </div>
 </template>
@@ -57,10 +64,26 @@ export default {
       confirmPass: ''
     }
   },
+  methods: {
+    onSubmit() {
+      console.log('Email', this.email)
+      console.log('Password', this.password)
+    }
+  },
   validations: {
     email: {
       required,
-      email
+      email,
+      uniqEmail: function(newEmail) {
+        if (newEmail === '') return true
+
+        return new Promise((resolve, reject) => {
+              setTimeout(() => {
+          const value = newEmail !== 'test@gmail.com'
+          resolve(value)
+        }, 1000)
+            })
+      }
     },
     password: {
       minLength: minLength(6)
